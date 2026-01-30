@@ -1,4 +1,3 @@
-#include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <numeric>
@@ -9,9 +8,9 @@ using Matrix = std::vector<std::vector<size_t>>;
 
 Matrix transpose(const Matrix& matrix) {
     Matrix result;
-    for (size_t i = 0; i < matrix[0].size(); i++) {
+    for (size_t i = 0; i < matrix[0].size(); ++i) {
         std::vector<size_t> row;
-        for (size_t j = 0; j < matrix.size(); j++) {
+        for (size_t j = 0; j < matrix.size(); ++j) {
             row.push_back(matrix[j][i]);
         }
         result.push_back(row);
@@ -21,7 +20,7 @@ Matrix transpose(const Matrix& matrix) {
 
 std::vector<size_t> get_positions(std::string_view symbol_line) {
     std::vector<size_t> positions;
-    for (size_t i = 0; i < symbol_line.size(); i++) {
+    for (size_t i = 0; i < symbol_line.size(); ++i) {
         if (symbol_line[i] != ' ') {
             positions.push_back(i);
         }
@@ -33,7 +32,7 @@ std::vector<size_t> get_positions(std::string_view symbol_line) {
 size_t get_total(std::string_view symbol_line, const Matrix& matrix) {
     std::vector<size_t> positions = get_positions(symbol_line);
     size_t total{0};
-    for (size_t i = 0; i < positions.size() - 1; i++) {
+    for (size_t i = 0; i < positions.size() - 1; ++i) {
         char symbol = symbol_line[positions[i]];
         if (symbol == '+') {
             total += std::accumulate(matrix[i].begin(), matrix[i].end(), 0ul);
@@ -51,7 +50,7 @@ size_t part1(std::string_view symbol_line, const std::vector<std::string>& lines
     Matrix matrix;
     for (auto& line : lines) {
         std::vector<size_t> row;
-        for (size_t i = 0; i < positions.size() - 1; i++) {
+        for (size_t i = 0; i < positions.size() - 1; ++i) {
             row.push_back(stoull(line.substr(positions[i], positions[i + 1])));
         }
         matrix.push_back(row);
@@ -66,7 +65,7 @@ size_t part2(std::string_view symbol_line, const std::vector<std::string>& lines
     size_t index{0};
     std::vector<std::vector<size_t>> matrix;
     std::vector<size_t> numbers;
-    for (index = 0; index < line_len; index++) {
+    for (index = 0; index < line_len; ++index) {
         std::vector<char> chars;
         for (auto& line : lines) {
             if (line.at(index) != ' ') {

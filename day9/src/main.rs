@@ -55,15 +55,15 @@ impl Part2 {
         let (min_x, max_x) = (t1.0.min(t2.0), t1.0.max(t2.0));
         let (min_y, max_y) = (t1.1.min(t2.1), t1.1.max(t2.1));
 
-        for edge in &self.vertical_edges {
-            if min_x < edge.along && edge.along < max_x && edge.end > min_y && edge.start < max_y {
-                return false;
-            }
+        if self.vertical_edges.iter().any(|edge| {
+            min_x < edge.along && edge.along < max_x && edge.end > min_y && edge.start < max_y
+        }) {
+            return false;
         }
-        for edge in &self.horizontal_edges {
-            if min_y < edge.along && edge.along < max_y && edge.end > min_x && edge.start < max_x {
-                return false;
-            }
+        if self.horizontal_edges.iter().any(|edge| {
+            min_y < edge.along && edge.along < max_y && edge.end > min_x && edge.start < max_x
+        }) {
+            return false;
         }
         true
     }

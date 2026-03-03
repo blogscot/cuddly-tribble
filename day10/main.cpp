@@ -4,8 +4,13 @@
 #include <numeric>
 #include <queue>
 #include <ranges>
+#include <sstream>
 #include <string>
 #include <vector>
+
+#include "z3++.h"
+
+using std::stringstream;
 
 using namespace std;
 
@@ -84,6 +89,41 @@ struct Machine {
         throw std::runtime_error("no solution");
     }
 
+    uint64_t solve() {
+        z3::context ctx;
+        z3::expr_vector presses(ctx);
+        z3::optimize opt(ctx);
+
+        for (unsigned i = 0; i < buttons.size(); i++) {
+            stringstream p_name;
+            p_name << "p_" << i;
+            presses.push_back(ctx.int_const(p_name.str().c_str()));
+        }
+
+        for (unsigned i = 0; i < presses.size(); i++) {
+            opt.add(presses[i] >= 0);
+        }
+
+        for (unsigned j = 0; j < joltages.size(); ++j) {
+            z3::expr_vector eqs(ctx);
+            for (unsigned b = 0; b < buttons.size(); b++) {
+                if (std::find(buttons[b].begin(), buttons[b].end(), j) != buttons[b].end()) {
+                    eqs.push_back(presses[b]);
+                }
+            }
+            opt.add(sum(eqs) == joltages[j]);
+        }
+
+        z3::expr total = sum(presses);
+        opt.minimize(total);
+
+        if (opt.check() == z3::sat) {
+            auto model = opt.get_model();
+            return model.eval(total).as_uint64();
+        }
+        return 0;
+    }
+
     int goal;
     vector<int> joltages;
     vector<vector<int>> buttons;
@@ -93,6 +133,12 @@ int part1(vector<Machine> const& machines) {
     return accumulate(machines.begin(), machines.end(), 0,
                       [](int acc, Machine machine) { return acc + machine.find_fewest_presses(); });
 }
+
+int part2(vector<Machine> const& machines) {
+    return accumulate(machines.begin(), machines.end(), 0,
+                      [](int acc, Machine machine) { return acc + machine.solve(); });
+}
+
 int main() {
     std::ifstream file("puzzle.txt");
 
@@ -104,6 +150,7 @@ int main() {
 
     try {
         println("{}", part1(machines));
+        println("{}", part2(machines));
     } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
     }
